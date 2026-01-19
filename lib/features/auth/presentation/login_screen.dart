@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,14 +22,22 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 1200)); // محاكاة أكثر واقعية
+
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final success = await auth.login(_emailController.text, _passwordController.text);
 
     setState(() => _isLoading = false);
 
-    // منطق حقيقي من الـ backend لاحقاً
-    final bool isCustomer = true;
-    context.go(isCustomer ? '/customer-home' : '/provider-home');
+    if (success) {
+      final role = auth.user!.role;
+      if (role == 'ORGANIZATION') context.go('/customer/home');
+      else if (role == 'PROVIDER') context.go('/provider/home');
+      else if (role == 'SUPER_ADMIN') context.go('/admin/home');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Login failed')));
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {

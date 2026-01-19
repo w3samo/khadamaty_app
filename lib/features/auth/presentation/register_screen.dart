@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -23,12 +26,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
-    // محاكاة API call
-    await Future.delayed(const Duration(seconds: 1));
+
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final msg = await auth.register(
+      _nameController.text,
+      _emailController.text,
+      _passwordController.text,
+      'ORGANIZATION', // أو اختر من dropdown
+    );
+
     setState(() => _isLoading = false);
 
-    context.go('/choose-account');
+    if (msg != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      context.go('/login');
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
