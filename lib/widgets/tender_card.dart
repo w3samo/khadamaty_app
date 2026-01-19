@@ -3,24 +3,28 @@ import '../models/tender_model.dart';
 
 class TenderCard extends StatelessWidget {
   final Tender tender;
+  const TenderCard({super.key, required this.tender});
 
-  const TenderCard({Key? key, required this.tender}) : super(key: key);
+  Color getStatusColor(String status) {
+    switch (status) {
+      case 'New':
+        return Colors.green;
+      case 'Ending Soon':
+        return Colors.red;
+      case 'Applied':
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    Color statusColor;
-    if (tender.status == 'New') {
-      statusColor = Colors.green;
-    } else if (tender.status == 'Ending Soon') {
-      statusColor = Colors.red;
-    } else {
-      statusColor = Colors.grey;
-    }
-
     return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 4,
+      color: Colors.lightBlue[50],
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -28,43 +32,32 @@ class TenderCard extends StatelessWidget {
           children: [
             Text(
               tender.title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.location_on, size: 16, color: Colors.lightBlue[400]),
-                const SizedBox(width: 4),
-                Text(tender.city),
-                const SizedBox(width: 12),
-                Icon(Icons.category, size: 16, color: Colors.lightBlue[400]),
-                const SizedBox(width: 4),
-                Text(tender.category),
-              ],
+              style: const TextStyle(
+                  fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
             ),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Budget: \$${tender.budget.toStringAsFixed(2)}'),
-                Text(
-                  'Deadline: ${tender.deadline.day}/${tender.deadline.month}/${tender.deadline.year}',
-                  style: TextStyle(color: statusColor),
-                ),
+                Text('Category: ${tender.category}', style: const TextStyle(color: Colors.black54)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: getStatusColor(tender.status),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    tender.status,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                )
               ],
             ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                tender.status,
-                style: TextStyle(color: statusColor, fontWeight: FontWeight.bold),
-              ),
-            ),
+            const SizedBox(height: 4),
+            Text('City: ${tender.city}', style: const TextStyle(color: Colors.black54)),
+            Text('Budget: \$${tender.budget}', style: const TextStyle(color: Colors.black54)),
+            Text('Deadline: ${tender.deadline.toLocal().toString().split(' ')[0]}',
+                style: const TextStyle(color: Colors.black54)),
           ],
         ),
       ),

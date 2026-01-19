@@ -2,23 +2,23 @@ import 'package:flutter/material.dart';
 import 'provider_tenders_screen.dart';
 
 void main() {
-  runApp(const TestProviderApp());
+  runApp(const MyApp());
 }
 
-class TestProviderApp extends StatelessWidget {
-  const TestProviderApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: Colors.lightBlue[400], // اللون الأساسي أزرق سماوي
+        primaryColor: Colors.lightBlue[400],
         colorScheme: ColorScheme.fromSwatch().copyWith(
           secondary: Colors.lightBlueAccent,
         ),
       ),
-      home: const ProviderTendersScreen(), // هنا تعرض صفحة المزود مباشرة
+      home: const ProviderTendersScreen(),
     );
   }
 }

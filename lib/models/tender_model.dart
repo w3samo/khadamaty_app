@@ -16,4 +16,16 @@ class Tender {
     required this.deadline,
     required this.status,
   });
+
+  factory Tender.fromJson(Map<String, dynamic> json) {
+    return Tender(
+      id: json['id'],
+      title: json['title'],
+      category: json['category'],
+      city: json['city'],
+      budget: json['budget'].toDouble(),
+      deadline: DateTime.parse(json['deadline']),
+      status: json['status'],
+    );
+  }
 }
