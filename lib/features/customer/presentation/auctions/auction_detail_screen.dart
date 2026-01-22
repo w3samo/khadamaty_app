@@ -9,39 +9,35 @@ class AuctionDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<CustomerTendersProvider>(context);
-    final tender = provider.getTenderById(tenderId)!;
+    final tender = provider.getTenderById(tenderId);
+
+    if (tender == null) {
+      return const Scaffold(
+        body: Center(child: Text('المناقصة غير موجودة')),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text(tender.title)),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('الفئة: ${tender.category}'),
             Text('الحالة: ${tender.status}'),
-            const SizedBox(height: 10),
-            const Text('الملفات:'),
-            ...tender.files.map((f) => Text(f)).toList(),
-            const SizedBox(height: 20),
-            const Text('العروض:'),
-            ...tender.offers.map((offer) {
-              return ListTile(
-                title: Text(offer['provider']),
-                subtitle: Text('السعر: ${offer['price']} | الحالة: ${offer['status']}'),
-                trailing: offer['status'] == 'submitted'
-                    ? ElevatedButton(
-                  onPressed: () {
-                    provider.selectWinningOffer(tender.id, offer['provider']);
-                  },
-                  child: const Text('اختيار'),
-                )
-                    : null,
-              );
-            }).toList(),
+            const SizedBox(height: 12),
+            Text('الوصف:\n${tender.description}'),
+            const SizedBox(height: 12),
+            Text('عدد العروض: ${tender.bidCount}'),
+            const SizedBox(height: 12),
+            Text('الميزانية: ${tender.budget}'),
+            const SizedBox(height: 12),
+            Text('الجهة: ${tender.company}'),
           ],
         ),
       ),
     );
   }
 }
+

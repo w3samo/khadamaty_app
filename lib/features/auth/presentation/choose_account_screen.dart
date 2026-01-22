@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'register_screen.dart'; // استدعاء شاشة التسجيل
 
 class ChooseAccountScreen extends StatelessWidget {
   const ChooseAccountScreen({super.key});
@@ -25,8 +25,6 @@ class ChooseAccountScreen extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 48),
-
-              // العنوان الرئيسي
               Text(
                 'مرحباً بك في مناقصات',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -35,9 +33,7 @@ class ChooseAccountScreen extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-
               const SizedBox(height: 12),
-
               Text(
                 'اختر نوع الحساب المناسب لك',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -45,61 +41,81 @@ class ChooseAccountScreen extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-
               const SizedBox(height: 48),
-
-              // الخيارات
               Expanded(
                 child: isWideScreen
                     ? Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
+                  children: [
                     _AccountTypeCard(
                       title: 'طالب خدمة',
-                      description:
-                      'أبحث عن مقدمي خدمات لتنفيذ مشاريعي وعطاءاتي',
+                      description: 'أبحث عن مقدمي خدمات لتنفيذ مشاريعي وعطاءاتي',
                       icon: Icons.search_rounded,
-                      route: '/login', // يروح على login
-                      color: Color(0xFF2CABE3),
+                      color: const Color(0xFF2CABE3),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const RegisterScreen(role: 'ORGANIZATION'),
+                          ),
+                        );
+                      },
                     ),
-                    SizedBox(width: 32),
+                    const SizedBox(width: 32),
                     _AccountTypeCard(
                       title: 'مزود خدمة',
-                      description:
-                      'أقدم خدماتي وأشارك في المناقصات والعطاءات',
+                      description: 'أقدم خدماتي وأشارك في المناقصات والعطاءات',
                       icon: Icons.handyman_rounded,
-                      route: '/login', // يروح على login
-                      color: Color(0xFF1A8BC2),
+                      color: const Color(0xFF1A8BC2),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const RegisterScreen(role: 'PROVIDER'),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 )
                     : SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
-                    children: const [
+                    children: [
                       _AccountTypeCard(
                         title: 'طالب خدمة',
-                        description:
-                        'أبحث عن مقدمي خدمات لتنفيذ مشاريعي وعطاءاتي',
+                        description: 'أبحث عن مقدمي خدمات لتنفيذ مشاريعي وعطاءاتي',
                         icon: Icons.search_rounded,
-                        route: '/login',
-                        color: Color(0xFF2CABE3),
+                        color: const Color(0xFF2CABE3),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const RegisterScreen(role: 'ORGANIZATION'),
+                            ),
+                          );
+                        },
                       ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       _AccountTypeCard(
                         title: 'مزود خدمة',
-                        description:
-                        'أقدم خدماتي وأشارك في المناقصات والعطاءات',
+                        description: 'أقدم خدماتي وأشارك في المناقصات والعطاءات',
                         icon: Icons.handyman_rounded,
-                        route: '/login',
-                        color: Color(0xFF1A8BC2),
+                        color: const Color(0xFF1A8BC2),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const RegisterScreen(role: 'PROVIDER'),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
                 ),
               ),
-
               const SizedBox(height: 32),
             ],
           ),
@@ -113,21 +129,21 @@ class _AccountTypeCard extends StatelessWidget {
   final String title;
   final String description;
   final IconData icon;
-  final String route;
   final Color color;
+  final VoidCallback onTap;
 
   const _AccountTypeCard({
     required this.title,
     required this.description,
     required this.icon,
-    required this.route,
     required this.color,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.go(route),
+      onTap: onTap,
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: AnimatedContainer(
@@ -161,28 +177,22 @@ class _AccountTypeCard extends StatelessWidget {
                     description,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.75),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.75),
                     ),
                   ),
                   const SizedBox(height: 28),
                   FilledButton.icon(
-                    onPressed: () => context.go(route),
+                    onPressed: onTap,
                     icon: const Icon(Icons.arrow_forward_rounded, size: 20),
-                    label: Text(
+                    label: const Text(
                       'ابدأ الآن',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                      style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                     style: FilledButton.styleFrom(
                       backgroundColor: color,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 14,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                 ],

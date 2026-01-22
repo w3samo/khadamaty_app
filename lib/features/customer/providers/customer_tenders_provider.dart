@@ -1,29 +1,37 @@
+// lib/features/customer/providers/customer_tenders_provider.dart
 import 'package:flutter/material.dart';
-import '../data/tender_repo.dart';
 import '../data/tender_model.dart';
+import '../data/customer_service.dart'; // خدمة استدعاء API
 
 class CustomerTendersProvider with ChangeNotifier {
-  List<TenderModel> tenders = TenderRepo.mockTenders;
+  List<TenderModel> _tenders = [];
+  bool _loading = false;
 
-  List<TenderModel> filterByCategory(String category) {
-    return tenders.where((t) => t.category == category).toList();
+  List<TenderModel> get tenders => _tenders;
+  bool get loading => _loading;
+
+  final CustomerService _service = CustomerService();
+
+  Future<void> fetchTenders() async {
+    _loading = true;
+    notifyListeners();
+
+    try {
+      final data = await _service.getCustomerTenders();
+      _tenders = data.map((json) => TenderModel.fromJson(json)).toList();
+    } catch (e) {
+      print('Error fetching tenders: $e');
+    }
+
+    _loading = false;
+    notifyListeners();
   }
 
   TenderModel? getTenderById(int id) {
     try {
-      return tenders.firstWhere((t) => t.id == id);
-    } catch (e) {
+      return _tenders.firstWhere((t) => t.id == id);
+    } catch (_) {
       return null;
-    }
-  }
-
-  void selectWinningOffer(int tenderId, String provider) {
-    final tender = getTenderById(tenderId);
-    if (tender != null) {
-      for (var offer in tender.offers) {
-        offer['status'] = (offer['provider'] == provider) ? 'accepted' : 'rejected';
-      }
-      notifyListeners();
     }
   }
 }

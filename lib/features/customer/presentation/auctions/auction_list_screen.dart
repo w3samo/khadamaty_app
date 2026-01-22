@@ -21,7 +21,9 @@ class AuctionListScreen extends StatelessWidget {
             child: ListTile(
               title: Text(tender.title),
               subtitle: Text('الفئة: ${tender.category} | حالة: ${tender.status}'),
-              trailing: Text('يغلق: ${tender.closeDate.day}/${tender.closeDate.month}'),
+              trailing: Text(
+                'ينتهي: ${tender.deadline.day}/${tender.deadline.month}',
+              ),
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(

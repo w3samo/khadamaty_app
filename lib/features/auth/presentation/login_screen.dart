@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../providers/auth_provider.dart';
 
@@ -26,9 +27,19 @@ class _LoginScreenState extends State<LoginScreen> {
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final success = await auth.login(_emailController.text, _passwordController.text);
 
-    setState(() => _isLoading = false);
-
     if (success) {
+      // حفظ الـ token بعد login
+      final token = auth.token; // <-- التوكن موجود بعد login مباشرة
+      if (token != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('access_token', token);
+      }
+
+      if (token != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('access_token', token);
+      }
+
       final role = auth.user!.role;
       if (role == 'ORGANIZATION') context.go('/customer/home');
       else if (role == 'PROVIDER') context.go('/provider/home');
@@ -36,14 +47,15 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Login failed')));
     }
-  }
 
+    setState(() => _isLoading = false);
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
-    final isWideScreen = size.width > 900; // زدنا الحد شوي للشاشات المتوسطة
+    final isWideScreen = size.width > 900;
 
     return Scaffold(
       body: SafeArea(
@@ -63,7 +75,6 @@ class _LoginScreenState extends State<LoginScreen> {
             child: isWideScreen
                 ? Row(
               children: [
-                // الجانب الأيسر - Illustration (أكثر جاذبية)
                 Expanded(
                   flex: 5,
                   child: Container(
@@ -75,42 +86,30 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.business_center_rounded,
-                          size: 160,
-                          color: const Color(0xFF2CABE3),
-                        ),
+                        Icon(Icons.business_center_rounded, size: 160, color: const Color(0xFF2CABE3)),
                         const SizedBox(height: 32),
-                        Text(
-                          'مناقصات',
-                          style: theme.textTheme.displayMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF2CABE3),
-                            letterSpacing: 1.2,
-                          ),
-                        ),
+                        Text('مناقصات',
+                            style: theme.textTheme.displayMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF2CABE3),
+                              letterSpacing: 1.2,
+                            )),
                         const SizedBox(height: 16),
-                        Text(
-                          'اكتشف وتابع أحدث المناقصات والعطاءات بكل سهولة واحترافية',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.85),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
+                        Text('اكتشف وتابع أحدث المناقصات والعطاءات بكل سهولة واحترافية',
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              color: theme.colorScheme.onSurface.withOpacity(0.85),
+                            ),
+                            textAlign: TextAlign.center),
                         const SizedBox(height: 32),
                         Opacity(
                           opacity: 0.8,
-                          child: Text(
-                            'انضم إلى آلاف المستخدمين الذين يديرون أعمالهم بذكاء',
-                            style: theme.textTheme.bodyMedium,
-                            textAlign: TextAlign.center,
-                          ),
+                          child: Text('انضم إلى آلاف المستخدمين الذين يديرون أعمالهم بذكاء',
+                              style: theme.textTheme.bodyMedium, textAlign: TextAlign.center),
                         ),
                       ],
                     ),
                   ),
                 ),
-                // الجانب الأيمن - Form card
                 Expanded(
                   flex: 4,
                   child: Center(
@@ -122,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ],
             )
-                : _buildLoginCard(context), // موبايل: card مركزي
+                : _buildLoginCard(context),
           ),
         ),
       ),
@@ -148,25 +147,19 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'مرحباً بعودتك',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF2CABE3),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+                Text('مرحباً بعودتك',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF2CABE3),
+                    ),
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 8),
-                Text(
-                  'سجّل دخولك للوصول إلى لوحة التحكم',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.75),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+                Text('سجّل دخولك للوصول إلى لوحة التحكم',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurface.withOpacity(0.75),
+                    ),
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 48),
-
-                // Email
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -180,15 +173,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (v) {
                     if (v == null || v.isEmpty) return 'مطلوب';
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v)) {
-                      return 'بريد إلكتروني غير صالح';
-                    }
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v)) return 'بريد إلكتروني غير صالح';
                     return null;
                   },
                 ),
                 const SizedBox(height: 24),
-
-                // Password
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -211,7 +200,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -225,20 +213,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-
-                // زر الدخول
                 FilledButton.icon(
                   onPressed: _isLoading ? null : _login,
                   icon: _isLoading
-                      ? const SizedBox.square(
-                    dimension: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
-                  )
+                      ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
                       : const Icon(Icons.arrow_forward_rounded),
-                  label: Text(
-                    _isLoading ? 'جاري التحميل...' : 'تسجيل الدخول',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
+                  label: Text(_isLoading ? 'جاري التحميل...' : 'تسجيل الدخول',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   style: FilledButton.styleFrom(
                     backgroundColor: const Color(0xFF2CABE3),
                     foregroundColor: Colors.white,
@@ -247,14 +228,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'ليس لديك حساب؟ ',
-                      style: theme.textTheme.bodyMedium,
-                    ),
+                    Text('ليس لديك حساب؟ ', style: theme.textTheme.bodyMedium),
                     TextButton(
                       onPressed: () => context.go('/register'),
                       style: TextButton.styleFrom(foregroundColor: const Color(0xFF2CABE3)),

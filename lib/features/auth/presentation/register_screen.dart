@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  final String role; // الدور يحدد مباشرة
+
+  const RegisterScreen({super.key, required this.role});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  late String _selectedRole;
+
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -21,6 +25,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedRole = widget.role; // الدور يجي من ChooseAccountScreen
+  }
 
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
@@ -32,7 +42,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _nameController.text,
       _emailController.text,
       _passwordController.text,
-      'ORGANIZATION', // أو اختر من dropdown
+      _selectedRole,
     );
 
     setState(() => _isLoading = false);
@@ -43,6 +53,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +85,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: isWideScreen
                 ? Row(
               children: [
-                // جانب Illustration (ويب/تابلت)
                 Expanded(
                   flex: 5,
                   child: Container(
@@ -84,7 +101,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: 24),
                           Text(
                             'انضم إلى مناقصات',
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: const Color(0xFF2CABE3),
                             ),
@@ -100,11 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                 ),
-                // الـ Form
-                Expanded(
-                  flex: 4,
-                  child: _buildRegisterForm(context),
-                ),
+                Expanded(flex: 4, child: _buildRegisterForm(context)),
               ],
             )
                 : Center(
@@ -125,28 +141,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: Form(
         key: _formKey,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 40),
             Text(
               'إنشاء حساب جديد',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               'سجّل الآن وابدأ في استكشاف المناقصات',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-              ),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge
+                  ?.copyWith(
+                  color:
+                  Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 48),
 
-            // الاسم / المؤسسة
+            // الاسم
             TextFormField(
               controller: _nameController,
               textInputAction: TextInputAction.next,
@@ -197,7 +216,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 labelText: 'كلمة المرور',
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
-                  icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                  icon:
+                  Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
                   onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                 ),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -229,9 +249,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 fillColor: Colors.white,
               ),
               validator: (value) {
-                if (value != _passwordController.text) {
-                  return 'كلمة المرور غير مطابقة';
-                }
+                if (value != _passwordController.text) return 'كلمة المرور غير مطابقة';
                 return null;
               },
             ),
@@ -278,14 +296,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmController.dispose();
-    super.dispose();
   }
 }
